@@ -23,12 +23,12 @@ object Tester {
 
   def test = {
     val system = ActorSystem("client")
-    val server = TCPIPServer.server
+    val server = AkkaWorldServer.server
     Thread.sleep(1100)
     val client = system.actorOf(Props[TcpIpGameClient])
     Thread.sleep(1100)
     implicit val timeout = Timeout(5 seconds)
-    val bytes = TCPIPServer.protocol.serialize(new thrift.message.Join("mumoshu"))
+    val bytes = AkkaWorldServer.protocol.serialize(new thrift.message.Join("mumoshu"))
     var r: Option[Boolean] = None
     try {
       val result = Await.result((client ? bytes.asInstanceOf[ByteString]).mapTo[Boolean], timeout.duration)
@@ -51,8 +51,8 @@ class TCPIPServerSpec extends Specification {
 
     val system = ActorSystem("integration")
     def port: Int
-    val worldActor = TCPIPServer.worldActor
-    val tcpIpServerActor = TCPIPServer.createServer(port)
+    val worldActor = AkkaWorldServer.worldActor
+    val tcpIpServerActor = AkkaWorldServer.createServer(port)
     val serverAddress = new InetSocketAddress("localhost", port)
 
     implicit val timeout = util.Timeout(FiniteDuration(5, concurrent.duration.SECONDS))

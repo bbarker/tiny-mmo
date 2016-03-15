@@ -1,7 +1,7 @@
 package org.mmo
 
-import com.github.mumoshu.mmo.server.TCPIPServer
+import com.github.mumoshu.mmo.server.AkkaWorldServer
 
 object Main extends App {
-  TCPIPServer.createServer(port = 1234)
+  AkkaWorldServer.createServer(port = 1234)
 }

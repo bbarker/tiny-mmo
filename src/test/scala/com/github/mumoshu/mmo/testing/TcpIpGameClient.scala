@@ -7,8 +7,8 @@ import akka.actor.IOManager
 import akka.pattern._
 import akka.util.ByteString
 import com.github.mumoshu.mmo.models.world.world.{Position, StringIdentity}
-import com.github.mumoshu.mmo.server.TCPIPServer
-import com.github.mumoshu.mmo.server.TCPIPServer.FrameEncoder
+import com.github.mumoshu.mmo.server.AkkaWorldServer
+import com.github.mumoshu.mmo.server.AkkaWorldServer.FrameEncoder
 import com.github.mumoshu.mmo.thrift
 import java.net.InetSocketAddress
 
@@ -33,7 +33,7 @@ class TcpIpGameClient(address: InetSocketAddress, observer: GameClientObserver)(
 
   log.debug("Starting with socket " + socket.uuid)
 
-  import TCPIPServer.protocol._
+  import AkkaWorldServer.protocol._
 
   def processSingle(socket: IO.SocketHandle, bytes: ByteString) {
     deserialize(bytes) match {
@@ -74,7 +74,7 @@ class TcpIpGameClient(address: InetSocketAddress, observer: GameClientObserver)(
   def processData(socket: IO.SocketHandle): Iteratee[Unit] = {
     IO repeat {
       for {
-        bytes <- TCPIPServer.FrameDecoder
+        bytes <- AkkaWorldServer.FrameDecoder
       } yield {
         processSingle(socket, bytes)
       }

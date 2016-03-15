@@ -7,7 +7,7 @@ import akka.pattern._
 import bot._
 import com.github.mumoshu.mmo.thrift
 import com.github.mumoshu.mmo.models.world.world.{Identity, StringIdentity, Position}
-import com.github.mumoshu.mmo.server.{Welcome, WorldCommand, WorldEvent, TCPIPServer}
+import com.github.mumoshu.mmo.server.{Welcome, WorldCommand, WorldEvent, AkkaWorldServer}
 import scala.concurrent.ExecutionContext
 import akka.event.LoggingReceive
 import com.github.mumoshu.mmo.server.tcpip.ActorChannel
@@ -23,7 +23,7 @@ class AkkaGameClient(id: Identity, server: ActorRef, observer: GameClientObserve
   val waitingId = Agent[Option[ActorRef]](None)
   val waitingThings = Agent[Option[ActorRef]](None)
 
-  import TCPIPServer.protocol._
+  import AkkaWorldServer.protocol._
 
   def processSingle(message: AnyRef) {
     message match {
@@ -61,7 +61,7 @@ class AkkaGameClient(id: Identity, server: ActorRef, observer: GameClientObserve
   def processData(socket: IO.SocketHandle): Iteratee[Unit] = {
     IO repeat {
       for {
-        bytes <- TCPIPServer.FrameDecoder
+        bytes <- AkkaWorldServer.FrameDecoder
       } yield {
         processSingle(socket, bytes)
       }

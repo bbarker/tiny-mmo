@@ -3,7 +3,7 @@ package com.github.mumoshu.mmo.testing.bot
 import java.net.InetSocketAddress
 import akka.actor.{ActorRef, Props, TypedActor, ActorSystem}
 import akka.util
-import com.github.mumoshu.mmo.server.TCPIPServer
+import com.github.mumoshu.mmo.server.AkkaWorldServer
 import com.github.mumoshu.mmo.models.world.world.{StringIdentity, Identity, Position}
 import com.github.mumoshu.mmo.thrift
 import concurrent.duration.Duration
@@ -20,7 +20,7 @@ case class GameBotImpl(client: ActorRef, playerName: String = "mumoshu") extends
 
   implicit val timeout = util.Timeout(5 seconds)
 
-  import TCPIPServer.protocol._
+  import AkkaWorldServer.protocol._
 
   def appear(p: Position) {
     client ! Send(new thrift.message.Appear(selfId.get.str, p.x.toDouble, p.z.toDouble))

@@ -3,7 +3,7 @@ package com.github.mumoshu.mmo.server.tcpip
 import org.slf4j.LoggerFactory
 import com.github.mumoshu.mmo.models.world.world.{Position, Identity}
 import akka.actor.{IO, ActorRef}
-import com.github.mumoshu.mmo.server.TCPIPServer
+import com.github.mumoshu.mmo.server.AkkaWorldServer
 
 sealed trait Channel {
   def write(message: AnyRef)
@@ -17,7 +17,7 @@ case class ActorChannel(ref: ActorRef) extends Channel {
 
 case class SocketChannel(handle: IO.SocketHandle, any2ByteString: ByteStringWriter) extends Channel {
   def write(message: AnyRef) {
-    handle.write(TCPIPServer.FrameEncoder(any2ByteString(message)))
+    handle.write(AkkaWorldServer.FrameEncoder(any2ByteString(message)))
   }
 }
 

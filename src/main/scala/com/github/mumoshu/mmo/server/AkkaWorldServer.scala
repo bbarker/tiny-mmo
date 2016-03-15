@@ -1,14 +1,15 @@
 package com.github.mumoshu.mmo.server
 
 import akka.actor._
-import ActorDSL._
+import akka.{NotUsed, io}
+import akka.io.{IO, Tcp}
 import java.net.InetSocketAddress
 import com.github.mumoshu.mmo.protocol.Protocol
 import akka.util.ByteString
 import com.github.mumoshu.mmo.models._
 import com.github.mumoshu.mmo.models.world.world._
 import tcpip._
-import scala.concurrent.stm._
+import scala.concurrent.stm.{atomic}
 import akka.agent.Agent
 import org.slf4j.LoggerFactory
 import world.world.InMemoryWorld
@@ -16,26 +17,25 @@ import world.world.LivingPlayer
 import world.world.Position
 import com.github.mumoshu.mmo.models.Terrain
 import scala.concurrent.ExecutionContext
-import akka.io
-import akka.io.Tcp
-import akka.io.Tcp._
+
 import com.github.mumoshu.mmo.models.world.world.InMemoryWorld
 import com.github.mumoshu.mmo.models.Terrain
 import com.github.mumoshu.mmo.models.world.world.StringIdentity
 
 import ExecutionContext.Implicits._
 
+
 /**
  * See http://stackoverflow.com/questions/12959709/send-a-tcp-ip-message-akka-actor
  * and http://doc.akka.io/docs/akka/snapshot/scala/io.html
  */
 
-object TCPIPServer extends TCPIPServer()
+object AkkaWorldServer extends AkkaWorldServer()
 
 // TODO Rename to AkkaWorldServer
-class TCPIPServer(implicit val executionContext: ExecutionContext) {
+class AkkaWorldServer(implicit val executionContext: ExecutionContext) {
 
-  val log = LoggerFactory.getLogger(classOf[TCPIPServer])
+  val log = LoggerFactory.getLogger(classOf[AkkaWorldServer])
 
   implicit val sys = ActorSystem("tcpIpServerSystem")
 
@@ -46,6 +46,7 @@ class TCPIPServer(implicit val executionContext: ExecutionContext) {
     val codec = new Codec[Payload] {
       /**
        * Decompose the TransportMessage and extracts its content
+ *
        * @param m the message decomposed
        * @return
        */
@@ -56,6 +57,7 @@ class TCPIPServer(implicit val executionContext: ExecutionContext) {
 
       /**
        * Composes the message content into a TransportMessage
+ *
        * @param hint
        * @param bytes
        * @return
@@ -77,6 +79,7 @@ class TCPIPServer(implicit val executionContext: ExecutionContext) {
 //    val data = Array.ofDim[Byte](in)
     frame
   }
+
 
   object FrameEncoder {
     def apply(bytes: Array[Byte]): ByteString = {
@@ -104,6 +107,8 @@ class TCPIPServer(implicit val executionContext: ExecutionContext) {
 }
 
 class TcpIpServerActor(port: Int, worldActor: ActorRef)(implicit sys: ActorSystem, ctx: ExecutionContext) extends Actor with ActorLogging {
+
+  import Tcp._
 
   implicit val any2ByteString = DefaultByteStringWriter
 
@@ -183,6 +188,7 @@ case class Welcome(identity: Identity, connectionHandler: Channel)
 /**
  * The WorldEvents are messages sent from entities in the world to the World.
  * The world changes its state by committing the events reported by the entities.
+ *
  * @param sender who reported the event
  * @param message what happened by the event
  */
@@ -191,6 +197,7 @@ case class WorldEvent(sender: Identity, message: AnyRef)
 /**
  * The WorldCommands are messages sent from the World to entities in the World.
  * All the entities involved in an event syncs their state via these commands.
+ *
  * @param recipient who sees the event
  * @param message what happened by the event
  */

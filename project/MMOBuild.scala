@@ -19,6 +19,7 @@ object MMOBuild extends Build {
         "com.typesafe.akka" %% "akka-actor" % s"$akkaVersion",
         "com.typesafe.akka" %% "akka-agent" % s"$akkaVersion",
         "com.typesafe.akka" %% "akka-slf4j" % s"$akkaVersion",
+        "com.typesafe.akka" %% "akka-stream" % s"$akkaVersion",
         "org.scala-lang" % "scala-reflect" % "2.11.8",
         "org.apache.thrift" % "libthrift" % "0.9.0",
         "org.slf4j" % "slf4j-api" % "1.7.5",
